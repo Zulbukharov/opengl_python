@@ -2,6 +2,7 @@ import glfw
 from OpenGL.GL import *
 import OpenGL.GL.shaders
 import numpy
+from PIL import Image
 
 def main():
 	if not glfw.init():
@@ -19,12 +20,12 @@ def main():
 	glfw.make_context_current(window)
 
 	#adding colors
-	#    x,    y,  z,   r,   g,   b
+	#    x,    y,  z,   r,   g,   b,  tx,  ty
 	quad = [
-		-.5, -.5, 0.0, 1.0, 0.0, 0.0,
-		.5, -.5, 0.0, 0.0, 1.0, 0.0,
-		.5, .5, 0.0, 0.0, 1.0, 0.0,
-		-.5, .5, 0.0, 0.0, 0.0, 1.0
+		-.5, -.5, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+		0.5, -.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+		0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+		-.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
 	]
 	quad = numpy.array(quad, dtype=numpy.float32)
 
@@ -39,23 +40,30 @@ def main():
 	#version 410 core
 	in vec3 position;
 	in vec3 color;
+	in vec2 inTexCords;
+
+	out vec2 outTexCords;
 	out vec3 newColor;
 
 	void main()
 	{
 		gl_Position = vec4(position, 1.0f);
 		newColor = color;
+		outTexCords = inTexCords;
 	}
 	"""
 
 	fragment_shader = """
 	#version 410 core
 	in vec3 newColor;
+	in vec2 outTexCords;
+
+	uniform sampler2D sampleTex;
 	out vec4 outColor;
 
 	void main()
 	{
-		outColor = vec4(newColor, 1.0f);
+		outColor = texture(sampleTex, outTexCords);
 	}
 	"""
 	VAO = glGenVertexArrays(1)
@@ -73,21 +81,42 @@ def main():
 	VBO = glGenBuffers(1) # vertex buffer object for GPU
 	glBindBuffer(GL_ARRAY_BUFFER, VBO)
 	#upload data to array buffer
-	glBufferData(GL_ARRAY_BUFFER, 96, quad, GL_STATIC_DRAW)
+	glBufferData(GL_ARRAY_BUFFER, quad.itemsize * len(quad), quad, GL_STATIC_DRAW)
 
 	EBO = glGenBuffers(1)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO)
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 24, indices, GL_STATIC_DRAW)
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.itemsize * len(indices), indices, GL_STATIC_DRAW)
 
 	#get position from vertex_shader variable
 	position = glGetAttribLocation(shader, "position")
-	glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 24, ctypes.c_void_p(0))
+	glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(0))
 	glEnableVertexAttribArray(position)
 
 	#get color from vertex_shader program variable
-	color = glGetAttribLocation(shader, "color")
-	glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 24, ctypes.c_void_p(12))
-	glEnableVertexAttribArray(color)
+	# color = glGetAttribLocation(shader, "color")
+	# glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(12))
+	# glEnableVertexAttribArray(color)
+
+	texture_cords = glGetAttribLocation(shader, "inTexCords")
+	glVertexAttribPointer(texture_cords, 2, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(24))
+	glEnableVertexAttribArray(texture_cords)
+
+	#load texture
+	texture = glGenTextures(1)
+	glBindTexture(GL_TEXTURE_2D, texture)
+	# texture wrapping parametr
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+
+	#texture filtering parametr
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+	image = Image.open("./1.jpg")
+	flipped_image = image.transpose(Image.FLIP_TOP_BOTTOM)
+	image_data = numpy.array(list(flipped_image.getdata()), numpy.uint8)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 564, 555, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data)
+	# glTexImage2D()
 
 	glUseProgram(shader)
 
@@ -95,7 +124,6 @@ def main():
 	while not glfw.window_should_close(window):
 		glfw.poll_events()
 		glClear(GL_COLOR_BUFFER_BIT)
-		# glDrawArrays(GL_TRIANGLES, 0, 3)
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
 		glfw.swap_buffers(window)
 	
