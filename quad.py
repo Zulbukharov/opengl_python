@@ -63,7 +63,7 @@ def main():
 
 	void main()
 	{
-		outColor = texture(sampleTex, outTexCords);
+		outColor = texture(sampleTex, outTexCords) * vec4(newColor, 1.0f);
 	}
 	"""
 	VAO = glGenVertexArrays(1)
@@ -93,9 +93,9 @@ def main():
 	glEnableVertexAttribArray(position)
 
 	#get color from vertex_shader program variable
-	# color = glGetAttribLocation(shader, "color")
-	# glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(12))
-	# glEnableVertexAttribArray(color)
+	color = glGetAttribLocation(shader, "color")
+	glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(12))
+	glEnableVertexAttribArray(color)
 
 	texture_cords = glGetAttribLocation(shader, "inTexCords")
 	glVertexAttribPointer(texture_cords, 2, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(24))
@@ -112,7 +112,7 @@ def main():
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
-	image = Image.open("./1.jpg")
+	image = Image.open("./res/1.jpg")
 	flipped_image = image.transpose(Image.FLIP_TOP_BOTTOM)
 	image_data = numpy.array(list(flipped_image.getdata()), numpy.uint8)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 564, 555, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data)
@@ -124,7 +124,7 @@ def main():
 	while not glfw.window_should_close(window):
 		glfw.poll_events()
 		glClear(GL_COLOR_BUFFER_BIT)
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
+		glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, None)
 		glfw.swap_buffers(window)
 	
 	glfw.terminate()
