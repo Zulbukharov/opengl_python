@@ -1,20 +1,10 @@
 import glfw
 from OpenGL.GL import *
-import OpenGL.GL.shaders
 import numpy
 import pyrr # matrix, vector math
 from PIL import Image
 from math import *
-# fov   =  45.0
-
-# deltaTime = 0.0
-# lastFrame = 0.0
-view = pyrr.matrix44.create_from_translation(pyrr.Vector3([.0, .4, -3.0]))
-firstMouse = True
-yaw   = -90.0
-pitch =  0.0
-lastX =  800.0 / 2.0
-lastY =  600.0 / 2.0
+import shaderLoader
 
 def key_event(window,key,scancode,action,mods):
 	if action == glfw.REPEAT or action == glfw.PRESS:
@@ -26,46 +16,6 @@ def key_event(window,key,scancode,action,mods):
 			model[3][0] += .1
 		elif key == glfw.KEY_D:
 			model[3][0] -= .1
-
-def mouse_callback(window, xPos, yPos):
-	global firstMouse
-	global yaw
-	global pitch
-	global lastX
-	global lastY
-	global view
-	if firstMouse:
-		lastX = xPos
-		lastY = yPos
-		firstMouse = False
-	xoffset = xPos - lastX
-	yoffset = lastY - yPos
-	lastX = xPos
-	lastY = yPos
-	sensitivity = 0.1
-	xoffset *= sensitivity
-	yoffset *= sensitivity
-
-	yaw += xoffset
-	pitch += yoffset
-
-	if pitch > 89.0:
-		pitch = 89.0
-	if pitch < -89.0:
-		pitch = -89.0
-
-	# glm::vec3 front;
-	# cos()
-	front = [0, 0, 0]
-	front[0] = cos(radians(yaw)) * cos(radians(pitch))
-	front[1] = sin(radians(pitch))
-	front[2] = sin(radians(yaw)) * cos(radians(pitch))
-
-	view[3][0] = front[0]
-	view[3][1] = front[1]
-	view[3][2] = front[2]
-	# norm1 = front / numpy.linalg.norm(front)
-	print(front)
 
 def main():
 	if not glfw.init():
@@ -91,8 +41,6 @@ def main():
 	glfw.set_input_mode(window,glfw.STICKY_KEYS,GL_TRUE) 
 	# Enable key event callback
 	glfw.set_key_callback(window, key_event)
-	# Enable cursor event callback
-	glfw.set_cursor_pos_callback(window, mouse_callback)
 
 	#when window resize
 	# glfw.set_window_size_callback(window, window_resize)
@@ -143,52 +91,10 @@ def main():
 
 	indices = numpy.array(indices, dtype=numpy.uint32)
 
-	vertex_shader = """
-	#version 410 core
-	in vec3 position; // py => shader
-	in vec3 color; // py => shader
-	in vec2 inTexCords;
-
-	out vec3 newColor; // => GPU => window
-	out vec2 newTexCords;
-	uniform mat4 transform;
-
-	uniform mat4 view;
-	uniform mat4 projection;
-	uniform mat4 model;
-
-	void main()
-	{
-		gl_Position = projection * view * model * transform * vec4(position, 1.0f);
-		newColor = color;
-		newTexCords = inTexCords;
-	}
-	"""
-
-	fragment_shader = """
-	#version 410 core
-	in vec3 newColor;
-	in vec2 newTexCords;
-
-	out vec4 outColor;
-	uniform sampler2D sampleTex;
-
-	void main()
-	{
-		outColor = texture(sampleTex, newTexCords) * vec4(newColor, 1.0f);
-	}
-	"""
 	VAO = glGenVertexArrays(1)
 	glBindVertexArray(VAO)
 
-	shader = OpenGL.GL.shaders.compileProgram(
-		OpenGL.GL.shaders.compileShader(
-			vertex_shader, GL_VERTEX_SHADER
-		),
-		OpenGL.GL.shaders.compileShader(
-			fragment_shader, GL_FRAGMENT_SHADER
-		)
-	)
+	shader = shaderLoader.compile_shader("./shaders/vertex_shader.vs", "./shaders/fragment_shader.fs")
 
 	VBO = glGenBuffers(1) # vertex buffer object for GPU
 	glBindBuffer(GL_ARRAY_BUFFER, VBO)
@@ -240,13 +146,12 @@ def main():
 
 	#perspective part
 	# view matrix
+	view = pyrr.matrix44.create_from_translation(pyrr.Vector3([.0, .0, -3.0]))
 	# global view
 	# projection matrix
 	projection = pyrr.matrix44.create_perspective_projection(45.0, w_width / w_height, 0.1, 100.0)
 	# model position matrix
-	global model
 	model = pyrr.matrix44.create_from_translation(pyrr.Vector3([0.0, 0.0, 0.0]))
-	print("model", model[3][2])
 
 
 	view_location = glGetUniformLocation(shader, "view")
@@ -261,16 +166,11 @@ def main():
 		glfw.poll_events()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-		# rot_x = pyrr.Matrix44.from_x_rotation(.5 * glfw.get_time())
-		rot_y = pyrr.Matrix44.from_y_rotation(.0)
+		rot_x = pyrr.Matrix44.from_x_rotation(.5 * glfw.get_time())
+		rot_y = pyrr.Matrix44.from_y_rotation(.8 * glfw.get_time())
 
-		# currentFrame = glfw.getTime()
-		# deltaTime = currentFrame - lastFrame
-		# lastFrame = currentFrame
 		transform_location = glGetUniformLocation(shader, "transform")
-		# glUniformMatrix4fv(transform_location, 1, GL_FALSE, rot_x * rot_y)
-		glUniformMatrix4fv(transform_location, 1, GL_FALSE, rot_y)
-		glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
+		glUniformMatrix4fv(transform_location, 1, GL_FALSE, rot_x * rot_y)
 		glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
 		glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, None)
 		glfw.swap_buffers(window)
