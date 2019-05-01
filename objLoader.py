@@ -49,6 +49,6 @@ class ObjLoader:
 			self.model.extend(self.vertex_cords[i])
 		for i in self.texture_index:
 			self.model.extend(self.texture_cords[i])
-		# for i in self.normal_index:
-			# self.model.extend(self.norm_cords[i])
+		for i in self.normal_index:
+			self.model.extend(self.norm_cords[i])
 		self.model = np.array(self.model, dtype='float32')
