@@ -48,53 +48,86 @@ def main():
 	#adding colors
 	#     x,    y,     z,   r,    g,   b    tx   ty
 	cube = [
-		-0.5, -0.5,  0.5,  1.0, 0.0, 0.0,  0.0, 0.0,
-		 0.5, -0.5,  0.5,  0.0, 1.0, 0.0,  1.0, 0.0,
-		 0.5,  0.5,  0.5,  0.0, 0.0, 1.0,  1.0, 1.0,
-		-0.5,  0.5,  0.5,  1.0, 1.0, 1.0,  0.0, 1.0,
+		-0.5, -0.5, -0.5,  0.0, 0.0,
+		 0.5, -0.5, -0.5,  1.0, 0.0,
+		 0.5,  0.5, -0.5,  1.0, 1.0,
+		 0.5,  0.5, -0.5,  1.0, 1.0,
+		-0.5,  0.5, -0.5,  0.0, 1.0,
+		-0.5, -0.5, -0.5,  0.0, 0.0,
 
-		-0.5, -0.5, -0.5,  1.0, 0.0, 0.0,  0.0, 0.0,
-		 0.5, -0.5, -0.5,  0.0, 1.0, 0.0,  1.0, 0.0,
-		 0.5,  0.5, -0.5,  0.0, 0.0, 1.0,  1.0, 1.0,
-		-0.5,  0.5, -0.5,  1.0, 1.0, 1.0,  0.0, 1.0,
+		-0.5, -0.5,  0.5,  0.0, 0.0,
+		 0.5, -0.5,  0.5,  1.0, 0.0,
+		 0.5,  0.5,  0.5,  1.0, 1.0,
+		 0.5,  0.5,  0.5,  1.0, 1.0,
+		-0.5,  0.5,  0.5,  0.0, 1.0,
+		-0.5, -0.5,  0.5,  0.0, 0.0,
 
-		 0.5, -0.5, -0.5,  1.0, 0.0, 0.0,  0.0, 0.0,
-		 0.5,  0.5, -0.5,  0.0, 1.0, 0.0,  1.0, 0.0,
-		 0.5,  0.5,  0.5,  0.0, 0.0, 1.0,  1.0, 1.0,
-		 0.5, -0.5,  0.5,  1.0, 1.0, 1.0,  0.0, 1.0,
+		-0.5,  0.5,  0.5,  1.0, 0.0,
+		-0.5,  0.5, -0.5,  1.0, 1.0,
+		-0.5, -0.5, -0.5,  0.0, 1.0,
+		-0.5, -0.5, -0.5,  0.0, 1.0,
+		-0.5, -0.5,  0.5,  0.0, 0.0,
+		-0.5,  0.5,  0.5,  1.0, 0.0,
 
-		-0.5,  0.5, -0.5,  1.0, 0.0, 0.0,  0.0, 0.0,
-		-0.5, -0.5, -0.5,  0.0, 1.0, 0.0,  1.0, 0.0,
-		-0.5, -0.5,  0.5,  0.0, 0.0, 1.0,  1.0, 1.0,
-		-0.5,  0.5,  0.5,  1.0, 1.0, 1.0,  0.0, 1.0,
+		 0.5,  0.5,  0.5,  1.0, 0.0,
+		 0.5,  0.5, -0.5,  1.0, 1.0,
+		 0.5, -0.5, -0.5,  0.0, 1.0,
+		 0.5, -0.5, -0.5,  0.0, 1.0,
+		 0.5, -0.5,  0.5,  0.0, 0.0,
+		 0.5,  0.5,  0.5,  1.0, 0.0,
 
-		-0.5, -0.5, -0.5,  1.0, 0.0, 0.0,  0.0, 0.0,
-		 0.5, -0.5, -0.5,  0.0, 1.0, 0.0,  1.0, 0.0,
-		 0.5, -0.5,  0.5,  0.0, 0.0, 1.0,  1.0, 1.0,
-		-0.5, -0.5,  0.5,  1.0, 1.0, 1.0,  0.0, 1.0,
+		-0.5, -0.5, -0.5,  0.0, 1.0,
+		 0.5, -0.5, -0.5,  1.0, 1.0,
+		 0.5, -0.5,  0.5,  1.0, 0.0,
+		 0.5, -0.5,  0.5,  1.0, 0.0,
+		-0.5, -0.5,  0.5,  0.0, 0.0,
+		-0.5, -0.5, -0.5,  0.0, 1.0,
 
-		 0.5,  0.5, -0.5,  1.0, 0.0, 0.0,  0.0, 0.0,
-		-0.5,  0.5, -0.5,  0.0, 1.0, 0.0,  1.0, 0.0,
-		-0.5,  0.5,  0.5,  0.0, 0.0, 1.0,  1.0, 1.0,
-		 0.5,  0.5,  0.5,  1.0, 1.0, 1.0,  0.0, 1.0
+		-0.5,  0.5, -0.5,  0.0, 1.0,
+		 0.5,  0.5, -0.5,  1.0, 1.0,
+		 0.5,  0.5,  0.5,  1.0, 0.0,
+		 0.5,  0.5,  0.5,  1.0, 0.0,
+		-0.5,  0.5,  0.5,  0.0, 0.0,
+		-0.5,  0.5, -0.5,  0.0, 1.0
 	]
+	        # Positions          # Texture Coords
+	# cube = [   0.5,  0.5, 0.0,   1.0, 1.0, # Top Right
+	# 	 0.5, -0.5, 0.0,   1.0, 0.0, # Bottom Right
+	# 	-0.5, -0.5, 0.0,   0.0, 0.0, # Bottom Let
+	# 	-0.5,  0.5, 0.0,   0.0, 1.0]  # Top Left 
 	cube = numpy.array(cube, dtype=numpy.float32)
 
-	indices = [
-				0,  1,  2,  2,  3,  0,
-				4,  5,  6,  6,  7,  4,
-				8,  9, 10, 10, 11,  8,
-				12, 13, 14, 14, 15, 12,
-				16, 17, 18, 18, 19, 16,
-				20, 21, 22, 22, 23, 20
-			]
+	# indices = [
+	# 			0,  1,  2,  2,  3,  0,
+	# 			4,  5,  6,  6,  7,  4,
+	# 			8,  9, 10, 10, 11,  8,
+	# 			12, 13, 14, 14, 15, 12,
+	# 			16, 17, 18, 18, 19, 16,
+	# 			20, 21, 22, 22, 23, 20
+	# 		]
+	# indices = [
+	# 	0, 1, 3,
+	# 	1, 2, 3
+	# ]
 
-	indices = numpy.array(indices, dtype=numpy.uint32)
+	cube_positions = [
+		( 0.0,  0.0,  0.0),
+		( 2.0,5.0, -15.0),
+		(-1.5, -2.2, -2.5),
+		(-3.8, -2.0, -12.3),
+		( 2.4, -0.4, -3.5),
+		(-1.7,3.0, -7.5),
+		( 1.3, -2.0, -2.5),
+		( 1.5,2.0, -2.5),
+		( 1.5,0.2, -1.5),
+		(-1.3,1.0, -1.5),
+	]
+	# indices = numpy.array(indices, dtype=numpy.uint32)
 
 	VAO = glGenVertexArrays(1)
 	glBindVertexArray(VAO)
 
-	shader = shaderLoader.compile_shader("./shaders/vertex_shader.vs", "./shaders/fragment_shader.fs")
+	shader = shaderLoader.compile_shader("./shaders/vertex_shader1.vs", "./shaders/fragment_shader1.fs")
 
 	VBO = glGenBuffers(1) # vertex buffer object for GPU
 	glBindBuffer(GL_ARRAY_BUFFER, VBO)
@@ -102,22 +135,22 @@ def main():
 	#                 buf type   byte  point     type
 	glBufferData(GL_ARRAY_BUFFER, cube.itemsize * len(cube), cube, GL_STATIC_DRAW)
 
-	EBO = glGenBuffers(1)
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO)
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.itemsize * len(indices), indices, GL_STATIC_DRAW)
+	# EBO = glGenBuffers(1)
+	# glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO)
+	# glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.itemsize * len(indices), indices, GL_STATIC_DRAW)
 
 	#get position from vertex_shader variable
 	position = glGetAttribLocation(shader, "position")
-	glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(0))
+	glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 20, ctypes.c_void_p(0))
 	glEnableVertexAttribArray(position)
 
 	#get color from vertex_shader program variable
-	color = glGetAttribLocation(shader, "color")
-	glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(12))
-	glEnableVertexAttribArray(color)
+	# color = glGetAttribLocation(shader, "color")
+	# glVertexAttribPointer(color, 3, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(12))
+	# glEnableVertexAttribArray(color)
 
 	texture_cords = glGetAttribLocation(shader, "inTexCords")
-	glVertexAttribPointer(texture_cords, 2, GL_FLOAT, GL_FALSE, 32, ctypes.c_void_p(24))
+	glVertexAttribPointer(texture_cords, 2, GL_FLOAT, GL_FALSE, 20, ctypes.c_void_p(12))
 	glEnableVertexAttribArray(texture_cords)
 
 	#load texture
@@ -135,7 +168,6 @@ def main():
 	flipped_image = image.transpose(Image.FLIP_TOP_BOTTOM)
 	image_data = numpy.array(list(flipped_image.getdata()), numpy.uint8)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 564, 555, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data)
-	# glTexImage2D()
 
 	glUseProgram(shader)
 
@@ -143,15 +175,14 @@ def main():
 	glEnable(GL_DEPTH_TEST)
 	# glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
-
 	#perspective part
 	# view matrix
 	view = pyrr.matrix44.create_from_translation(pyrr.Vector3([.0, .0, -3.0]))
 	# global view
 	# projection matrix
 	projection = pyrr.matrix44.create_perspective_projection(45.0, w_width / w_height, 0.1, 100.0)
-	# model position matrix
-	model = pyrr.matrix44.create_from_translation(pyrr.Vector3([0.0, 0.0, 0.0]))
+	print("[PROJECTION MATRIX]")
+	print(projection)
 
 
 	view_location = glGetUniformLocation(shader, "view")
@@ -159,20 +190,18 @@ def main():
 	model_location = glGetUniformLocation(shader, "model")
 
 	glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
-	glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
 	glUniformMatrix4fv(projection_location, 1, GL_FALSE, projection)
 
 	while not glfw.window_should_close(window):
 		glfw.poll_events()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-		rot_x = pyrr.Matrix44.from_x_rotation(.5 * glfw.get_time())
-		rot_y = pyrr.Matrix44.from_y_rotation(.8 * glfw.get_time())
-
-		transform_location = glGetUniformLocation(shader, "transform")
-		glUniformMatrix4fv(transform_location, 1, GL_FALSE, rot_x * rot_y)
-		glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
-		glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, None)
+		for i in range(len(cube_positions)):
+			model = pyrr.matrix44.create_from_translation(cube_positions[i])
+			rot = pyrr.matrix44.create_from_axis_rotation(pyrr.Vector3([1.0, 0.3, 0.5]), radians(20.0 * i))
+			model = pyrr.matrix44.multiply(rot, model)
+			glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
+			glDrawArrays(GL_TRIANGLES, 0, 36)
 		glfw.swap_buffers(window)
 	
 	glfw.terminate()

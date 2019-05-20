@@ -50,7 +50,7 @@ def main():
 	#when window resize
 	# glfw.set_window_size_callback(window, window_resize)
 	obj = ObjLoader()
-	obj.load_model("./res/monkey.obj")
+	obj.load_model("./res/diablo.obj")
 
 	VAO = glGenVertexArrays(1)
 	glBindVertexArray(VAO)
@@ -90,7 +90,7 @@ def main():
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
-	image = Image.open("./res/monkey.jpg")
+	image = Image.open("./res/diablo3_pose_diffuse.tga")
 	flipped_image = image.transpose(Image.FLIP_TOP_BOTTOM)
 	image_data = numpy.array(list(flipped_image.getdata()), numpy.uint8)
 	# img_data = flipped_image.convert("RGBA").tobytes()
