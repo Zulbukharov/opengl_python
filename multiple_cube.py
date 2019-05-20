@@ -177,7 +177,7 @@ def main():
 
 	#perspective part
 	# view matrix
-	view = pyrr.matrix44.create_from_translation(pyrr.Vector3([.0, .0, -3.0]))
+	# view = pyrr.matrix44.create_from_translation(pyrr.Vector3([.0, .0, -3.0]))
 	# global view
 	# projection matrix
 	projection = pyrr.matrix44.create_perspective_projection(45.0, w_width / w_height, 0.1, 100.0)
@@ -189,16 +189,29 @@ def main():
 	projection_location = glGetUniformLocation(shader, "projection")
 	model_location = glGetUniformLocation(shader, "model")
 
-	glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
+	# glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
 	glUniformMatrix4fv(projection_location, 1, GL_FALSE, projection)
 
+	# rot_x = pyrr.matrix44.create_from_x_rotation(sin(glfw.get_time()) * 2)
 	while not glfw.window_should_close(window):
 		glfw.poll_events()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+		# pyrr.matrix44.create_look_at(eye, target, up, dtype=None)
+		radius = 10.0
+		camX = sin(glfw.get_time()) * radius
+		camZ = cos(glfw.get_time()) * radius
+		view = pyrr.matrix44.create_look_at(pyrr.Vector3([camX, 0.0, camZ]), pyrr.Vector3([0.0, 0.0, 0.0]), pyrr.Vector3([0.0, 1.0, 0.0]))
+		glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
+
 		for i in range(len(cube_positions)):
 			model = pyrr.matrix44.create_from_translation(cube_positions[i])
-			rot = pyrr.matrix44.create_from_axis_rotation(pyrr.Vector3([1.0, 0.3, 0.5]), radians(20.0 * i))
+			angle = 20.0 * i
+			if i % 3 == 0:
+				angle = glfw.get_time() * 25.5
+			if i % 4 == 0:
+				angle = sin(glfw.get_time()) * 2
+			rot = pyrr.matrix44.create_from_axis_rotation(pyrr.Vector3([1.0, 0.3, 0.5]), radians(angle))
 			model = pyrr.matrix44.multiply(rot, model)
 			glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
 			glDrawArrays(GL_TRIANGLES, 0, 36)
