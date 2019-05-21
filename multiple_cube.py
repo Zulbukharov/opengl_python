@@ -6,7 +6,8 @@ from PIL import Image
 from math import *
 import shaderLoader
 
-cameraPos   =pyrr.Vector3([0.0, 0.0,  3.0])
+cube_positions = []
+cameraPos   =pyrr.Vector3([0.0, 0.5,  2.0])
 cameraFront =pyrr.Vector3([0.0, 0.0, -1.0])
 cameraUp    =pyrr.Vector3([0.0, 1.0,  0.0])
 delta_time 	= 0.0
@@ -14,19 +15,39 @@ last_frame 	= 0.0
 view = pyrr.Matrix44.look_at(cameraPos, cameraPos + cameraFront, cameraUp)
 yaw    = -90.0 #Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
 pitch  =  0.0
-lastX  =  800 / 2.0
-lastY  =  600 / 2.0
+lastX  =  1920 / 2.0
+lastY  =  1080 / 2.0
 fov =  45.0
 firstMouse = True
+keys = [False] * 1024
+
+def scroll_callback(window, xoffset, yoffset):
+	global fov
+	if fov >= 1.0 and fov <= 45.0:
+		fov -= yoffset
+	if fov <= 1.0:
+		fov = 1.0
+	if fov >= 45.0:
+		fov = 45.0
+
+def do_movement():
+	global cameraFront, cameraPos, cameraUp, view, delta_time, keys, cube_positions
+	cameraSpeed = 2.5 * delta_time
+	if keys[glfw.KEY_W]:
+		cameraPos += cameraSpeed * cameraFront
+		# cube_positions[0] += cameraSpeed * cameraFront
+	if keys[glfw.KEY_S]:
+		cameraPos -= cameraSpeed * cameraFront
+		# cube_positions[0] -= cameraSpeed * cameraFront
+	if keys[glfw.KEY_A]:
+		cameraPos -= pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
+		# cube_positions[0] -= pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
+	if keys[glfw.KEY_D]:
+		cameraPos += pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
+		# cube_positions[0] += pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
 
 def mouse_callback(window, xpos, ypos):
-	global firstMouse
-	global yaw
-	global pitch
-	global lastX
-	global lastY
-	global fov
-	global cameraFront
+	global firstMouse, yaw, pitch, lastX, lastY, fov, cameraFront
 
 	if firstMouse:
 		lastX = xpos
@@ -38,7 +59,7 @@ def mouse_callback(window, xpos, ypos):
 	lastX = xpos
 	lastY = ypos
 
-	sensitivity = 0.50	# Change this value to your liking
+	sensitivity = 0.25	# Change this value to your liking
 	xoffset *= sensitivity
 	yoffset *= sensitivity
 
@@ -57,23 +78,13 @@ def mouse_callback(window, xpos, ypos):
 	cameraFront = pyrr.vector.normalise(front)
 
 def key_event(window,key,scancode,action,mods):
-	global cameraFront
-	global cameraPos
-	global cameraUp
-	global view
-	global delta_time
-	cameraSpeed = 52.0 * delta_time
-	if action == glfw.REPEAT or action == glfw.PRESS:
-		if key == glfw.KEY_ESCAPE:
-			glfw.set_window_should_close(window, GL_TRUE)
-		elif key == glfw.KEY_W:
-			cameraPos += cameraSpeed * cameraFront
-		elif key == glfw.KEY_S:
-			cameraPos -= cameraSpeed * cameraFront
-		elif key == glfw.KEY_A:
-			cameraPos -= pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
-		elif key == glfw.KEY_D:
-			cameraPos += pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
+	if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
+		glfw.set_window_should_close(window, True)
+	if key >= 0 and key < 1024:
+		if action == glfw.PRESS:
+			keys[key] = True
+		elif action == glfw.RELEASE:
+			keys[key] = False
 
 def main():
 	global delta_time
@@ -81,8 +92,8 @@ def main():
 	# global cameraFront
 	if not glfw.init():
 		return
-	w_width = 800
-	w_height = 600
+	w_width = 1920
+	w_height = 1080
 	glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 4)
 	glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
 	glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, 1)
@@ -97,11 +108,16 @@ def main():
 
 	glfw.make_context_current(window)
 	# Enable key events
-	glfw.set_input_mode(window, glfw.STICKY_KEYS,GL_TRUE) 
+	glfw.set_input_mode(window, glfw.STICKY_KEYS, GL_TRUE) 
 	# Enable key event callback
+	# if glfw. MotionSupported():
+	# glfw.set_input_mode(window, glfw.GLFW_RAW_MOUSE_MOTION, glfw.TRUE)
+	glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 	glfw.set_key_callback(window, key_event)
 
 	glfw.set_cursor_pos_callback(window, mouse_callback)
+
+	glfw.set_scroll_callback(window, scroll_callback)
 
 	#when window resize
 	# glfw.set_window_size_callback(window, window_resize)
@@ -149,7 +165,12 @@ def main():
 		 0.5,  0.5,  0.5,  1.0, 0.0,
 		 0.5,  0.5,  0.5,  1.0, 0.0,
 		-0.5,  0.5,  0.5,  0.0, 0.0,
-		-0.5,  0.5, -0.5,  0.0, 1.0
+		-0.5,  0.5, -0.5,  0.0, 1.0,
+		#ground
+		-10,   -1.1, 20,   0.0, 0.0,
+		 10,   -1.1, 20,   0.0, 1.0,
+		-10,   -1.1, -300, 1.0, 1.0,
+		 10,   -1.1, -300, 1.0, 0.0
 	]
 	        # Positions          # Texture Coords
 	# cube = [   0.5,  0.5, 0.0,   1.0, 1.0, # Top Right
@@ -171,19 +192,28 @@ def main():
 	# 	1, 2, 3
 	# ]
 
+
+	global cube_positions
 	cube_positions = [
-		( 0.0,  0.0,  0.0),
-		( 2.0,5.0, -15.0),
-		(-1.5, -2.2, -2.5),
-		(-3.8, -2.0, -12.3),
-		( 2.4, -0.4, -3.5),
-		(-1.7,3.0, -7.5),
-		( 1.3, -2.0, -2.5),
-		( 1.5,2.0, -2.5),
-		( 1.5,0.2, -1.5),
-		(-1.3,1.0, -1.5),
+		pyrr.Vector3([ 0.0,  0.0,  0.0]),
+		pyrr.Vector3([ 2.0,5.0, -15.0]),
+		pyrr.Vector3([-1.5, -2.2, -2.5]),
+		pyrr.Vector3([-3.8, -2.0, -12.3]),
+		pyrr.Vector3([ 2.4, -0.4, -3.5]),
+		pyrr.Vector3([-1.7,3.0, -7.5]),
+		pyrr.Vector3([ 1.3, -2.0, -2.5]),
+		pyrr.Vector3([ 1.5,2.0, -2.5]),
+		pyrr.Vector3([ 1.5,0.2, -1.5]),
+		pyrr.Vector3([-1.3,1.0, -1.5]),
 	]
-	# indices = numpy.array(indices, dtype=numpy.uint32)
+
+	# ground_vertices = [
+	# 	-10, -1.1, 20,
+	# 	10, -1.1, 20,
+	# 	-10, -1.1, -300,
+	# 	10, -1.1, -300,
+	# ]
+	# indices = numpy.arraypyrr.Vector3([indices, dtype=numpy.uint32)
 
 	VAO = glGenVertexArrays(1)
 	glBindVertexArray(VAO)
@@ -195,10 +225,6 @@ def main():
 	#upload data to array buffer
 	#                 buf type   byte  point     type
 	glBufferData(GL_ARRAY_BUFFER, cube.itemsize * len(cube), cube, GL_STATIC_DRAW)
-
-	# EBO = glGenBuffers(1)
-	# glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO)
-	# glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.itemsize * len(indices), indices, GL_STATIC_DRAW)
 
 	#get position from vertex_shader variable
 	position = glGetAttribLocation(shader, "position")
@@ -232,7 +258,7 @@ def main():
 
 	glUseProgram(shader)
 
-	glClearColor(.2, .3, .2, 1.0)
+	# glClearColor(.2, .3, .2, 1.0)
 	glEnable(GL_DEPTH_TEST)
 	# glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
@@ -255,7 +281,10 @@ def main():
 
 	# rot_x = pyrr.matrix44.create_from_x_rotation(sin(glfw.get_time()) * 2)
 	while not glfw.window_should_close(window):
+		w = 0
 		glfw.poll_events()
+		do_movement()
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 		current_frame = glfw.get_time()
 		delta_time = current_frame - last_frame
@@ -267,21 +296,83 @@ def main():
 		# camZ = cos(glfw.get_time()) * radius
 		# view = pyrr.matrix44.create_look_at(pyrr.Vector3([camX, 0.0, camZ]), pyrr.Vector3([0.0, 0.0, 0.0]), pyrr.Vector3([0.0, 1.0, 0.0]))
 		global view
-		print(type(cameraFront))
+		# cameraPos.y = 0.5
 		view = pyrr.Matrix44.look_at(cameraPos, cameraPos + cameraFront, cameraUp)
 		glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
+		# model = pyrr.matrix44.create_from_translation(pyrr.Vector3([0.0, 0.0, 0.0]))
+		# glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
+		# for i in range(len(cube_positions)):
+		# 	if int(cameraPos.x) == int(cube_positions[i][0]) and \
+		# 		int(cameraPos.y) == int(cube_positions[i][1]) and \
+		# 		int(cameraPos.z) == int(cube_positions[i][2]):
+		# 		w = 1
+		# if w:
+		# 	w = 0
+		# 	continue
+		# glDrawArrays(GL_TRIANGLES, 36, 39)
 
+		# cube_positions_len = len(cube_positions) - 20w
+		# print(cameraPos.z)
+		# for i in range(len(cube_positions)):
+		# 	if int(cube_positions[i][2]) >= int(cameraPos.z):
+		# 		return
+# 		rangeIntersect: function(min0, max0, min1, max1) {
+# 		return Math.max(min0, max0) >= Math.min(min1, max1) && 
+# 			   Math.min(min0, max0) <= Math.max(min1, max1);
+# 	},
+
+# 	rectIntersect: function(r0, r1) {
+# 		return utils.rangeIntersect(r0.x, r0.x + r0.width, r1.x, r1.x + r1.width) &&
+# 			   utils.rangeIntersect(r0.y, r0.y + r0.height, r1.y, r1.y + r1.height);
+# }	
+		rot_x = pyrr.matrix44.create_from_x_rotation(sin(glfw.get_time()) * 2)
 		for i in range(len(cube_positions)):
 			model = pyrr.matrix44.create_from_translation(cube_positions[i])
-			angle = 20.0 * i
-			if i % 3 == 0:
-				angle = glfw.get_time() * 25.5
-			if i % 4 == 0:
-				angle = sin(glfw.get_time()) * 50
-			rot = pyrr.matrix44.create_from_axis_rotation(pyrr.Vector3([1.0, 0.3, 0.5]), radians(angle))
-			model = pyrr.matrix44.multiply(rot, model)
+			# print(model)
+			angle = 0
+			# # angle = i
+			# if i % 3 == 0:
+				# angle = glfw.get_time() * 180
+				# angle = sin(radians(angle)) * cos(radians(angle))
+			# # if i % 4 == 0:
+			# 	# angle = sin(glfw.get_time()) * 50
+			# if i == 8:
+			# 	# angle = 0
+			# 	angle = sin(glfw.get_time()) * 50
+			# if i % 3 == 0:
+				# rot = 
+				# model = pyrr.matrix44.multiply(rot_x, model)
+				# if w == 0:
+					# print(model)
+			if i == 0:
+# radius = 100
+# for angle in range(0, 361):
+#     theta = math.radians(angle)
+#     x = radius*math.cos(theta)
+#     y = radius*math.sin(theta)
+#     print(x, y)
+				# rot = pyrr.matrix44.create_from_axis_rotation(cameraFront, 1)
+				# rot = pyrr.matrix44.create_from_translation(cameraFront + camera)
+				# pyrr.matrix44.create_from_x_rotation()
+				radius = 4
+				theta = radians(glfw.get_time() * 100)
+				rot_y = pyrr.matrix44.create_from_y_rotation(glfw.get_time() * 0.5)
+				# X := originX + cos(angle)*radius;
+				# Y := originY + sin(angle)*radius;
+				cube_positions[0][0] = cameraPos.x + cos(theta) * radius
+				cube_positions[0][2] = cameraPos.z + sin(theta) * radius
+				model = pyrr.matrix44.multiply(rot_y, model)
+				# model = pyrr.matrix44.create_from_translation(cube_positions[0])
+
+				# model = pyrr.matrix44.multiply(cube_positions[i]), model)
+				# model = pyrr.Matrix44.look_at(cube_positions[i], cube_positions[i] + cameraFront, cameraUp)
+				# model = pyrr.matrix44.inverse(model)
+			# rot = pyrr.matrix44.create_from_axis_rotation(pyrr.Vector3([]), angle)
 			glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
 			glDrawArrays(GL_TRIANGLES, 0, 36)
+			# w = 1
+			
+		# glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
 		glfw.swap_buffers(window)
 	
 	glfw.terminate()
