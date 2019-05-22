@@ -33,18 +33,35 @@ def scroll_callback(window, xoffset, yoffset):
 def do_movement():
 	global cameraFront, cameraPos, cameraUp, view, delta_time, keys, cube_positions
 	cameraSpeed = 2.5 * delta_time
+	###
+	# To determine if two spheres are colliding, we take the sum of the 
+	# radiuses and compare it with the length from the centers of 
+	# the spheres. If the length is smaller than the sum of the radiuses, 
+	# we have a collision.
+	###
+	old_camera_pos = pyrr.Vector3([cameraPos.x, cameraPos.y, cameraPos.z])
+	# print(old_camera_pos)
 	if keys[glfw.KEY_W]:
 		cameraPos += cameraSpeed * cameraFront
-		# cube_positions[0] += cameraSpeed * cameraFront
+		# print("press")
+		# print(cameraPos)
 	if keys[glfw.KEY_S]:
 		cameraPos -= cameraSpeed * cameraFront
-		# cube_positions[0] -= cameraSpeed * cameraFront
 	if keys[glfw.KEY_A]:
 		cameraPos -= pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
-		# cube_positions[0] -= pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
 	if keys[glfw.KEY_D]:
 		cameraPos += pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
-		# cube_positions[0] += pyrr.vector.normalise(pyrr.vector3.cross(cameraFront, cameraUp)) * cameraSpeed
+	for i in range (len(cube_positions)):
+		vecd = cameraPos - cube_positions[i]
+		dist = sqrt(pow(vecd.x, 2) + pow(vecd.y, 2) + pow(vecd.z, 2))	
+		if dist < 1: # s1.radius + s2.radius
+			# print("old")
+			# print(cameraPos)
+			# print("new")
+			# del(cameraPos)
+			cameraPos = old_camera_pos[:]
+			# print(cameraPos)
+			return
 
 def mouse_callback(window, xpos, ypos):
 	global firstMouse, yaw, pitch, lastX, lastY, fov, cameraFront
@@ -89,6 +106,7 @@ def key_event(window,key,scancode,action,mods):
 def main():
 	global delta_time
 	global last_frame
+	global cameraPos
 	# global cameraFront
 	if not glfw.init():
 		return
@@ -297,6 +315,7 @@ def main():
 		# view = pyrr.matrix44.create_look_at(pyrr.Vector3([camX, 0.0, camZ]), pyrr.Vector3([0.0, 0.0, 0.0]), pyrr.Vector3([0.0, 1.0, 0.0]))
 		global view
 		# cameraPos.y = 0.5
+		
 		view = pyrr.Matrix44.look_at(cameraPos, cameraPos + cameraFront, cameraUp)
 		glUniformMatrix4fv(view_location, 1, GL_FALSE, view)
 		# model = pyrr.matrix44.create_from_translation(pyrr.Vector3([0.0, 0.0, 0.0]))
@@ -360,6 +379,7 @@ def main():
 				# X := originX + cos(angle)*radius;
 				# Y := originY + sin(angle)*radius;
 				cube_positions[0][0] = cameraPos.x + cos(theta) * radius
+				cube_positions[0][1] = cameraPos.y
 				cube_positions[0][2] = cameraPos.z + sin(theta) * radius
 				model = pyrr.matrix44.multiply(rot_y, model)
 				# model = pyrr.matrix44.create_from_translation(cube_positions[0])
